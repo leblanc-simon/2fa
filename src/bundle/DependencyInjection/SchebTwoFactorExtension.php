@@ -46,6 +46,10 @@ class SchebTwoFactorExtension extends Extension
             $this->configureGoogleAuthenticationProvider($container, $config);
         }
 
+        if (isset($config['notifier']['enabled']) && $this->resolveFeatureFlag($container, $config['notifier']['enabled'])) {
+            $this->configureNotifierAuthenticationProvider($container, $config);
+        }
+
         if (isset($config['totp']['enabled']) && $this->resolveFeatureFlag($container, $config['totp']['enabled'])) {
             $this->configureTotpAuthenticationProvider($container, $config);
         }
@@ -190,6 +194,31 @@ class SchebTwoFactorExtension extends Extension
         }
 
         $container->setAlias('scheb_two_factor.security.email.form_renderer', $config['email']['form_renderer']);
+    }
+
+    /**
+     * @param array<string,mixed> $config
+     */
+    private function configureNotifierAuthenticationProvider(ContainerBuilder $container, array $config): void
+    {
+        $loader = new Loader\PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('two_factor_provider_notifier.php');
+
+        $container->setParameter('scheb_two_factor.notifier.channel', $config['notifier']['channel']);
+        $container->setParameter('scheb_two_factor.notifier.importance', $config['notifier']['importance']);
+        $container->setParameter('scheb_two_factor.notifier.template', $config['notifier']['template']);
+        $container->setParameter('scheb_two_factor.notifier.digits', $config['notifier']['digits']);
+        $container->setAlias('scheb_two_factor.security.notifier.code_generator', $config['notifier']['code_generator'])->setPublic(true);
+
+        if (null !== $config['notifier']['notification']) {
+            $container->setAlias('scheb_two_factor.security.notifier.auth_code_notification', $config['notifier']['notification']);
+        }
+
+        if (null === $config['notifier']['form_renderer']) {
+            return;
+        }
+
+        $container->setAlias('scheb_two_factor.security.notifier.form_renderer', $config['notifier']['form_renderer']);
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Scheb\TwoFactorBundle;
 
 use Scheb\TwoFactorBundle\DependencyInjection\Compiler\MailerCompilerPass;
+use Scheb\TwoFactorBundle\DependencyInjection\Compiler\NotifierCompilerPass;
 use Scheb\TwoFactorBundle\DependencyInjection\Compiler\TwoFactorFirewallConfigCompilerPass;
 use Scheb\TwoFactorBundle\DependencyInjection\Compiler\TwoFactorProviderCompilerPass;
 use Scheb\TwoFactorBundle\DependencyInjection\Factory\Security\TwoFactorFactory;
@@ -26,6 +27,7 @@ class SchebTwoFactorBundle extends Bundle
         $container->addCompilerPass(new TwoFactorProviderCompilerPass());
         $container->addCompilerPass(new TwoFactorFirewallConfigCompilerPass());
         $container->addCompilerPass(new MailerCompilerPass());
+        $container->addCompilerPass(new NotifierCompilerPass());
 
         $extension = $container->getExtension('security');
         assert($extension instanceof SecurityExtension);

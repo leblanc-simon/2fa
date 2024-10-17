@@ -9,6 +9,7 @@ use RecursiveIteratorIterator;
 use Scheb\TwoFactorBundle\Model\BackupCodeInterface;
 use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EMailTwoFactorInterface;
 use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface as GoogleTwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Notifier\TwoFactorInterface as NotifierTwoFactorInterface;
 use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
 use Scheb\TwoFactorBundle\Model\TrustedDeviceInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -72,6 +73,7 @@ class Configuration implements ConfigurationInterface
         $this->addBackupCodeConfiguration($rootNode);
         $this->addEmailConfiguration($rootNode);
         $this->addGoogleAuthenticatorConfiguration($rootNode);
+        $this->addNotifierConfiguration($rootNode);
         $this->addTotpConfiguration($rootNode);
     }
 
@@ -159,6 +161,35 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('sender_name')->defaultNull()->end()
                         ->scalarNode('template')->defaultValue('@SchebTwoFactor/Authentication/form.html.twig')->end()
                         ->integerNode('digits')->defaultValue(4)->min(1)->end()
+                    ->end()
+                ->end()
+            ->end();
+    }
+
+    private function addNotifierConfiguration(ArrayNodeDefinition $rootNode): void
+    {
+        if (!interface_exists(NotifierTwoFactorInterface::class)) {
+            return;
+        }
+
+        /**
+         * @psalm-suppress UndefinedMethod
+         * @psalm-suppress UndefinedInterfaceMethod
+         * @psalm-suppress PossiblyNullReference
+         */
+        $rootNode
+            ->children()
+                ->arrayNode('notifier')
+                    ->canBeEnabled()
+                    ->children()
+                        ->scalarNode('enabled')->defaultValue(false)->end()
+                        ->scalarNode('notification')->defaultNull()->end()
+                        ->scalarNode('channel')->defaultNull()->end()
+                        ->scalarNode('importance')->defaultNull()->end()
+                        ->scalarNode('code_generator')->defaultValue('scheb_two_factor.security.notifier.default_code_generator')->end()
+                        ->scalarNode('form_renderer')->defaultNull()->end()
+                        ->scalarNode('template')->defaultValue('@SchebTwoFactor/Authentication/form.html.twig')->end()
+                        ->integerNode('digits')->defaultValue(6)->min(1)->end()
                     ->end()
                 ->end()
             ->end();

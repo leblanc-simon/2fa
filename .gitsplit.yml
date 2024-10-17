@@ -5,6 +5,8 @@ splits:
       target: "https://${GH_TOKEN}@github.com/scheb/2fa-email.git"
     - prefix: "src/google-authenticator"
       target: "https://${GH_TOKEN}@github.com/scheb/2fa-google-authenticator.git"
+    - prefix: "src/notifier"
+      target: "https://${GH_TOKEN}@github.com/scheb/2fa-notifier.git"
     - prefix: "src/totp"
       target: "https://${GH_TOKEN}@github.com/scheb/2fa-totp.git"
     - prefix: "src/backup-code"
